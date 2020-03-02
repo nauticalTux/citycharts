@@ -1,27 +1,51 @@
 import requests
+import json
+import time
 
-#response = requests.get(
-#    'https://api.github.com/search/repositories',
-#    params={'q': 'requests+language:python'}, )
 
-#response = requests.get(
-#    'https://api.openweathermap.org/data/2.5/weather',
-#    params={'q': 'London&appid=45943213061eaf57c7c9c497369686c5'}, )
 
+api_requests_hourly = 60
 api_url = 'https://api.openweathermap.org/data/2.5/weather'
 api_key = ''
-city = 'London'
-
-response = requests.get(
-    api_url,
-    params={'q': city, 'appid': api_key, 'units': 'imperial'} )
-
-json_response = response.json()
 
 
-#print(response.headers)
-print(response.json())
+cities = [
+    'London',
+    'Seattle',
+    'Denver'
+            ]
+
+##
+# The syntax of the requests param is translated:
+# From: {'KEY1': YOUR_VAR, 'KEY2': 'STRING'}
+# Into: ?KEY1=<YOUR_VAR>&KEY2=STRING
+#
+# An example is like this: https://api.endpoint.com/interesting/url?KEY1=<YOUR_VAR>&KEY2=STRING
+# Like this:  requests.get('https://api.openweathermap.org/data/2.5/weather?q=London&appid=<api_key>')
 
 
-## This request worked when executes w/cli
-# requests.get('https://api.openweathermap.org/data/2.5/weather?q=London&appid=45943213061eaf57c7c9c497369686c5')don&appid=45943213061eaf57c7c9c497369686c5')
+def get_weather_metrics(city):
+    print("Processing get_weather_metrics for city:", city)
+
+    response = requests.get(
+        api_url,
+        params={'q': city, 'appid': api_key, 'units': 'imperial'} )
+
+    response_json = response.json()
+
+        # Print human readable json response
+        # print(json.dumps(response_json, indent=4))
+
+    city_temp = response_json["main"]["temp"]
+
+    print("Temperature in", city, "=", city_temp)
+
+
+request_freq = (api_requests_hourly / len(cities) * 60)
+print("Updating every", request_freq, "seconds.")
+
+while True:
+    for city in cities:
+        get_weather_metrics(city)
+
+    time.sleep(request_freq)
